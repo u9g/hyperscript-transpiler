@@ -1,0 +1,150 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`basic 1 1`] = `
+"let it
+const globals = {}
+register("worldLoad", (my) => {
+  let
+  exampleWorldLoad()
+
+  exampleWorldLoad2()
+})
+
+register("quit", (my) => {
+  let
+  sendLeave()
+})
+"
+`;
+
+exports[`basic 2 1`] = `
+"let it
+const globals = {}
+register("click", (my) => {
+  it = myJavascriptFunction()
+})
+"
+`;
+
+exports[`basic 3 1`] = `
+"let it
+const globals = {}
+register("click", (my) => {
+  let
+  it = prompt("age fn?")
+
+  it = it()
+})
+"
+`;
+
+exports[`basic 4 1`] = `
+"let it
+const globals = {}
+print("Hello")
+
+print("World!")
+"
+`;
+
+exports[`basic 5 1`] = `
+"let it
+const globals = {}
+;(() => {
+  print("hello")(() => {
+    print("world")
+    print("!")
+  })()
+})()
+"
+`;
+
+exports[`basic 6 1`] = `
+"let it
+const globals = {}
+register("click", (my) => {
+  ;(() => {
+    print("hello")
+    print("world")
+  })()
+})
+"
+`;
+
+exports[`basic 7 1`] = `
+"let it
+const globals = {}
+register("click", (my) => {
+  ;(() => {
+    it = helloWorld()
+    print(it)
+  })()
+})
+"
+`;
+
+exports[`basic 8 1`] = `
+"let it
+const globals = {}
+x = "5"
+"
+`;
+
+exports[`basic 9 1`] = `
+"let it
+const globals = {}
+x = apple
+"
+`;
+
+exports[`basic 9 2`] = `
+"let it
+const globals = {}
+x = 45
+"
+`;
+
+exports[`basic 10 1`] = `
+"let it
+const globals = {}
+x = { name: "Joe", age: 35 }
+"
+`;
+
+exports[`basic 11 1`] = `
+"let it
+const globals = {}
+register("keyup", (my) => {
+  print(it.x)
+})
+"
+`;
+
+exports[`basic 11 2`] = `
+"let it
+const globals = {}
+;(() => {
+  let y
+  y = (x) => x
+  it = y(5)
+})()
+"
+`;
+
+exports[`basic 12 1`] = `
+"let it
+const globals = {}
+y = () => true
+"
+`;
+
+exports[`basic 13 1`] = `
+"let it
+const globals = {}
+;(() => {
+  let y
+  y = { a: (x) => x }
+  it = y.a("a")
+})()
+"
+`;
