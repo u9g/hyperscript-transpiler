@@ -173,3 +173,14 @@ globals.orange = "orange"
 ChatLib.chat(globals.apple + globals.orange)
 "
 `;
+
+exports[`basic 16 1`] = `
+"let it
+const globals = {}
+globals.apple = "red"
+
+globals.orange = "orange"
+
+ChatLib.chat(globals.apple + globals.orange)
+"
+`;

@@ -21,7 +21,10 @@ const semantics = grammar
     },
   })
   .addOperation("declVariable", {
-    setCommand(_set, _spaces1, lhs, _spaces2, _to, _spaces3, expr) {
+    setCommand(_set, _spaces0, variableModifier, _spaces1, lhs, _spaces2, _to, _spaces3, expr) {
+      if (variableModifier.sourceString === "global") {
+        return null
+      }
       return lhs.identifierValue();
     },
     statementList(firstStatement, _newLines, _spaces, restStatements) {
@@ -194,8 +197,9 @@ const semantics = grammar
           return value;
       }
     },
-    setCommand(_set, _spaces1, lhs, _spaces2, _to, _spaces3, expr) {
-      return `${lhs.transpile()} = ${expr.transpile()}`;
+    setCommand(_set, _spaces0, variableModifier, _spaces1, lhs, _spaces2, _to, _spaces3, expr) {
+      // todo: add some assertion that lhs is an identifier if there is the global modifier
+      return `${(variableModifier.sourceString === "global" ? "globals." : "") + lhs.transpile()} = ${expr.transpile()}`;
     },
     globalIdentifier(_dollarSign, variableName) {
       return `globals.${variableName.sourceString}`
