@@ -13,15 +13,16 @@ Program {
     string = (~q any)*
     q = "\"" | "'"
     identifier = alnums
+    globalIdentifier = "$" alnums
 
-    lhs = identifier
+    lhs = identifier | globalIdentifier
     allExpressions = infixOperatorExpression | nonOperationExpressions
     nonOperationExpressions =
     | functionCall
     | possessiveExpression
     | number
     | qString
-    | identifier
+    | lhs
     | object
     | closure
     | parenthesizedExpression

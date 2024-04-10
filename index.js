@@ -7,6 +7,9 @@ const grammar = makeGrammar(require("fs").readFileSync("./grammar.ohm"));
 const semantics = grammar
   .createSemantics()
   .addOperation("identifierValue", {
+    globalIdentifier(a, b) {
+      return null
+    },
     parenthesizedExpression(a, b, value, c, d) {
       return value.identifierValue();
     },
@@ -194,6 +197,9 @@ const semantics = grammar
     setCommand(_set, _spaces1, lhs, _spaces2, _to, _spaces3, expr) {
       return `${lhs.transpile()} = ${expr.transpile()}`;
     },
+    globalIdentifier(_dollarSign, variableName) {
+      return `globals.${variableName.sourceString}`
+    },
     object(_lCurly, optionalPropertyList, _rCurly) {
       return `{${optionalPropertyList.transpile()}}`;
     },
@@ -263,7 +269,10 @@ module.exports = {
 
 async function main() {
   const matched = grammar.match(`
-    set y to {a: \\ x -> x} then call y's a('a')
+  set $apple to "red"
+  set $orange to "orange"
+  set $colors to $apple + $orange
+  
   `);
   const generated = semantics(matched).transpile();
   console.log(await format(generated, { semi: false, parser: "babel" }));

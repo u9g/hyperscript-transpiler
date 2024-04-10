@@ -162,3 +162,14 @@ y = 20
 sumOfSquares = x * x + y * y
 "
 `;
+
+exports[`basic 15 1`] = `
+"let it
+const globals = {}
+globals.apple = "red"
+
+globals.orange = "orange"
+
+ChatLib.chat(globals.apple + globals.orange)
+"
+`;

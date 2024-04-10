@@ -143,3 +143,13 @@ test("basic 14", async () => {
     `)
   ).toMatchSnapshot();
 });
+
+test("basic 15", async () => {
+  expect(
+    await run(`
+      set $apple to "red"
+      set $orange to "orange"
+      log $apple + $orange
+    `)
+  ).toMatchSnapshot();
+});
