@@ -15,14 +15,13 @@ Program {
     identifier = alnums
     globalIdentifier = "$" alnums
 
-    lhs = identifier | globalIdentifier
     allExpressions = infixOperatorExpression | nonOperationExpressions
     nonOperationExpressions =
     | functionCall
     | possessiveExpression
     | number
     | qString
-    | lhs
+    | globalIdentifier | identifier
     | object
     | closure
     | parenthesizedExpression
@@ -45,6 +44,7 @@ Program {
     callCommand = ("call" | "get") " " functionCall
     logCommand = "log" " " allExpressions
     thenCommand = stmt spaces "then" spaces stmt
-    setCommand = "set" spaces "global"? spaces lhs spaces "to" spaces allExpressions
+    assignmentLhs = possessiveExpression | globalIdentifier | identifier
+    setCommand = "set" spaces "global"? spaces assignmentLhs spaces "to" spaces allExpressions
     possessiveExpression = allExpressions spaces "'s" spaces alnums
 }

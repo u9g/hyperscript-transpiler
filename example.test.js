@@ -163,3 +163,14 @@ test("basic 16", async () => {
     `)
   ).toMatchSnapshot();
 });
+
+test("basic 17", async () => {
+  expect(
+    await run(`
+    on "worldLoad"
+        log "Hello!"
+        set $h's b to event's a
+    end
+    `)
+  ).toMatchSnapshot();
+});

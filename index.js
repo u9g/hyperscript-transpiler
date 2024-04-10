@@ -7,6 +7,9 @@ const grammar = makeGrammar(require("fs").readFileSync("./grammar.ohm"));
 const semantics = grammar
   .createSemantics()
   .addOperation("identifierValue", {
+    possessiveExpression(baseObject, _spaces1, _apostropheS, _spaces2, key) {
+      return null
+    },
     globalIdentifier(a, b) {
       return null
     },
@@ -16,7 +19,7 @@ const semantics = grammar
     identifier(value) {
       return value.sourceString;
     },
-    lhs(identifier) {
+    assignmentLhs(identifier) {
       return identifier.identifierValue();
     },
   })
@@ -272,14 +275,23 @@ module.exports = {
 };
 
 async function main() {
-  const matched = grammar.match(`
-  set $apple to "red"
-  set $orange to "orange"
-  set $colors to $apple + $orange
-  
-  `);
-  const generated = semantics(matched).transpile();
-  console.log(await format(generated, { semi: false, parser: "babel" }));
+  const fs = require('fs')
+
+  fs.watchFile('./code._hs', { interval: 5 }, async () => {
+    try {
+      const matched = grammar.match(fs.readFileSync('./code._hs'));
+      const generated = semantics(matched).transpile();
+      fs.writeFileSync('out.js', await format(generated, { semi: false, parser: "babel" }));
+    } catch (e) { console.error(e) }
+  })
+  // const matched = grammar.match(`
+  // set $apple to "red"
+  // set $orange to "orange"
+  // set $colors to $apple + $orange
+
+  // `);
+  // const generated = semantics(matched).transpile();
+  // console.log(await format(generated, { semi: false, parser: "babel" }));
 }
 
 main();

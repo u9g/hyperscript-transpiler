@@ -184,3 +184,14 @@ globals.orange = "orange"
 ChatLib.chat(globals.apple + globals.orange)
 "
 `;
+
+exports[`basic 17 1`] = `
+"let it
+const globals = {}
+register("worldLoad", (my) => {
+  ChatLib.chat("Hello!")
+
+  globals.h.b = event.a
+})
+"
+`;
