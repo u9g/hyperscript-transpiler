@@ -7,8 +7,14 @@ const grammar = makeGrammar(require("fs").readFileSync("./grammar.ohm"));
 const semantics = grammar
   .createSemantics()
   .addOperation("identifierValue", {
+    parenthesizedExpression(a, b, value, c, d) {
+      return value.identifierValue();
+    },
     identifier(value) {
       return value.sourceString;
+    },
+    lhs(identifier) {
+      return identifier.identifierValue();
     },
   })
   .addOperation("declVariable", {
@@ -88,7 +94,17 @@ const semantics = grammar
   })
   .addOperation("transpile", {
     file(_spaces1, stlist, _spaces2) {
-      return "let it;const globals = {};\n" + stlist.transpile();
+      let variablesToDeclSet = new Set(
+        stlist.declVariable().filter((x) => x !== null)
+      );
+      let shouldDeclVariables = variablesToDeclSet.size > 0;
+      return (
+        "let it;const globals = {};\n" +
+        (shouldDeclVariables
+          ? `let ${[...variablesToDeclSet].join(", ")};`
+          : "") +
+        stlist.transpile()
+      );
     },
     statementList(firstStatement, _newLines, _spaces, restStatements) {
       return [
@@ -105,7 +121,9 @@ const semantics = grammar
       _spaces3,
       _end
     ) {
-      let variablesToDeclSet = new Set(stlist.declVariable());
+      let variablesToDeclSet = new Set(
+        stlist.declVariable().filter((x) => x !== null)
+      );
       let shouldDeclVariables = variablesToDeclSet.size > 0;
       return `register(${eventName.transpile()}, (my) => {
       ${shouldDeclVariables ? `let ${[...variablesToDeclSet].join(", ")};` : ""}
@@ -121,6 +139,9 @@ const semantics = grammar
     optionalArgumentList(maybeArgumentList) {
       // if the argumentList exists, children.length=1
       return maybeArgumentList.children.map((x) => x.transpile());
+    },
+    number(value) {
+      return value.sourceString;
     },
     argumentList(firstArgument, _commas, _spaces, restArguments) {
       return [
@@ -149,7 +170,9 @@ const semantics = grammar
       if (statementTwo.declVariable()) {
         variablesToDecl.push(statementTwo.declVariable());
       }
-      let variablesToDeclSet = new Set(variablesToDecl);
+      let variablesToDeclSet = new Set(
+        variablesToDecl.filter((x) => x !== null)
+      );
       let shouldDeclVariables = variablesToDeclSet.size > 0;
       return `(() => {
         ${shouldDeclVariables ? `let ${[...variablesToDeclSet].join(", ")};` : ""}
@@ -221,6 +244,12 @@ const semantics = grammar
     parameter(name) {
       return name.sourceString;
     },
+    infixOperatorExpression(_spaces, lhs, _spaces2, op, _spaces3, rhs) {
+      return `${lhs.transpile()} ${op.sourceString} ${rhs.transpile()}`;
+    },
+    parenthesizedExpression(_lBrace, _spaces1, expr, _spaces2, _rbrace) {
+      return `(${expr.transpile()})`;
+    },
   });
 
 module.exports = {
@@ -234,9 +263,8 @@ module.exports = {
 
 async function main() {
   const matched = grammar.match(`
-  on "
+    set y to {a: \\ x -> x} then call y's a('a')
   `);
-
   const generated = semantics(matched).transpile();
   console.log(await format(generated, { semi: false, parser: "babel" }));
 }

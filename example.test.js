@@ -133,3 +133,13 @@ test("basic 13", async () => {
     `)
   ).toMatchSnapshot();
 });
+
+test("basic 14", async () => {
+  expect(
+    await run(`
+      set x to 10
+      set y to 20
+      set sumOfSquares to (x * x) + (y * y)
+    `)
+  ).toMatchSnapshot();
+});

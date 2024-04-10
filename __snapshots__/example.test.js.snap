@@ -4,14 +4,12 @@ exports[`basic 1 1`] = `
 "let it
 const globals = {}
 register("worldLoad", (my) => {
-  let
   exampleWorldLoad()
 
   exampleWorldLoad2()
 })
 
 register("quit", (my) => {
-  let
   sendLeave()
 })
 "
@@ -30,7 +28,6 @@ exports[`basic 3 1`] = `
 "let it
 const globals = {}
 register("click", (my) => {
-  let
   it = prompt("age fn?")
 
   it = it()
@@ -41,9 +38,9 @@ register("click", (my) => {
 exports[`basic 4 1`] = `
 "let it
 const globals = {}
-print("Hello")
+ChatLib.chat("Hello")
 
-print("World!")
+ChatLib.chat("World!")
 "
 `;
 
@@ -51,9 +48,9 @@ exports[`basic 5 1`] = `
 "let it
 const globals = {}
 ;(() => {
-  print("hello")(() => {
-    print("world")
-    print("!")
+  ChatLib.chat("hello")(() => {
+    ChatLib.chat("world")
+    ChatLib.chat("!")
   })()
 })()
 "
@@ -64,8 +61,8 @@ exports[`basic 6 1`] = `
 const globals = {}
 register("click", (my) => {
   ;(() => {
-    print("hello")
-    print("world")
+    ChatLib.chat("hello")
+    ChatLib.chat("world")
   })()
 })
 "
@@ -77,7 +74,7 @@ const globals = {}
 register("click", (my) => {
   ;(() => {
     it = helloWorld()
-    print(it)
+    ChatLib.chat(it)
   })()
 })
 "
@@ -86,6 +83,7 @@ register("click", (my) => {
 exports[`basic 8 1`] = `
 "let it
 const globals = {}
+let x
 x = "5"
 "
 `;
@@ -93,6 +91,7 @@ x = "5"
 exports[`basic 9 1`] = `
 "let it
 const globals = {}
+let x
 x = apple
 "
 `;
@@ -100,6 +99,7 @@ x = apple
 exports[`basic 9 2`] = `
 "let it
 const globals = {}
+let x
 x = 45
 "
 `;
@@ -107,6 +107,7 @@ x = 45
 exports[`basic 10 1`] = `
 "let it
 const globals = {}
+let x
 x = { name: "Joe", age: 35 }
 "
 `;
@@ -115,7 +116,7 @@ exports[`basic 11 1`] = `
 "let it
 const globals = {}
 register("keyup", (my) => {
-  print(it.x)
+  ChatLib.chat(it.x)
 })
 "
 `;
@@ -134,6 +135,7 @@ const globals = {}
 exports[`basic 12 1`] = `
 "let it
 const globals = {}
+let y
 y = () => true
 "
 `;
@@ -146,5 +148,17 @@ const globals = {}
   y = { a: (x) => x }
   it = y.a("a")
 })()
+"
+`;
+
+exports[`basic 14 1`] = `
+"let it
+const globals = {}
+let x, y, sumOfSquares
+x = 10
+
+y = 20
+
+sumOfSquares = x * x + y * y
 "
 `;

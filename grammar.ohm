@@ -5,9 +5,9 @@ Program {
     stmt = thenCommand | onStatementMultipleLine | onStatementOneLine | callCommand | logCommand | setCommand
     onStatementOneLine = "on" spaces qString spaces statement spaces ~"end"
     onStatementMultipleLine = "on" spaces qString spaces statementList spaces "end"
-    functionCall = expression "(" optionalArgumentList ")"
+    functionCall = allExpressions "(" optionalArgumentList ")"
     optionalArgumentList = argumentList?
-    argumentList = expression ("," spaces expression)*
+    argumentList = allExpressions ("," spaces allExpressions)*
     qString = q string q
     alnums = alnum+
     string = (~q any)*
@@ -15,22 +15,35 @@ Program {
     identifier = alnums
 
     lhs = identifier
-    expression = functionCall | possessiveExpression | qString | identifier | object | number | closure
+    allExpressions = infixOperatorExpression | nonOperationExpressions
+    nonOperationExpressions =
+    | functionCall
+    | possessiveExpression
+    | number
+    | qString
+    | identifier
+    | object
+    | closure
+    | parenthesizedExpression
+
     number = ("0".."9")+
 
     object = "{" optionalObjectPropertiesList "}"
     optionalObjectPropertiesList = objectPropertiesList?
     objectPropertiesList = objectProperty ("," spaces objectProperty)*
-    objectProperty = alnums spaces ":" spaces expression
+    objectProperty = alnums spaces ":" spaces allExpressions
 
-    closure = "\\" spaces optionalParameterList spaces "->" spaces expression
+    closure = "\\" spaces optionalParameterList spaces "->" spaces allExpressions
     optionalParameterList = parameterList?
     parameterList = parameter ("," spaces parameter)*
     parameter = alnums
+
+    parenthesizedExpression = "(" spaces allExpressions spaces ")"
+    infixOperatorExpression = spaces nonOperationExpressions spaces ("+" | "*") spaces nonOperationExpressions
     // commands
     callCommand = ("call" | "get") " " functionCall
-    logCommand = "log" " " expression
+    logCommand = "log" " " allExpressions
     thenCommand = stmt spaces "then" spaces stmt
-    setCommand = "set" spaces lhs spaces "to" spaces expression
-    possessiveExpression = expression spaces "'s" spaces alnums
+    setCommand = "set" spaces lhs spaces "to" spaces allExpressions
+    possessiveExpression = allExpressions spaces "'s" spaces alnums
 }
