@@ -1,50 +1,110 @@
 Program {
-	file = spaces statementList spaces
-	statementList = statement ("\n" spaces statement)*
-    statement = stmt | functionCall
-    stmt = thenCommand | onStatementMultipleLine | onStatementOneLine | callCommand | logCommand | setCommand
-    onStatementOneLine = "on" spaces qString spaces statement spaces ~"end"
-    onStatementMultipleLine = "on" spaces qString spaces statementList spaces "end"
-    functionCall = allExpressions "(" optionalArgumentList ")"
-    optionalArgumentList = argumentList?
-    argumentList = allExpressions ("," spaces allExpressions)*
-    qString = q string q
-    alnums = alnum+
-    string = (~q any)*
-    q = "\"" | "'"
-    identifier = alnums
-    globalIdentifier = "$" alnums
+	space := " " | "\t"
 
-    allExpressions = infixOperatorExpression | nonOperationExpressions
-    nonOperationExpressions =
-    | functionCall
-    | possessiveExpression
-    | number
-    | qString
-    | globalIdentifier | identifier
-    | object
-    | closure
-    | parenthesizedExpression
+    File = StatementList ("\n" | space)*
+
+    StatementWithPrependedNewline = "\n"* Statement
+
+	StatementList =
+    	ListOf<StatementWithPrependedNewline, &"\n">
+
+    Statement =
+    	ThenStatement
+
+    ThenStatement =
+    	| Statement "then" ThenStatement --then
+        | SetStatement
+
+	Lhs =
+    	| standaloneIdentifier
+        | StandalonePossessive
+
+    SetStatement =
+    	| "set" Lhs "to" Expression --set
+        | LogStatement
+
+    LogStatement =
+    	| "log" Expression --log
+        | CallStatement
+
+	CallStatement =
+    	| "call" StandaloneFunctionCall --call
+        | OnStatementMultipleLines
+
+	OnStatementMultipleLines =
+    	| "on" standaloneString "\n" StatementList "\n" "end" --onmultiline
+    	| OnStatementOneLine
+
+	OnStatementOneLine =
+    	| "on" standaloneString Statement --ononeline
+        | StandaloneFunctionCall
+
+    // expressions
+
+    Expression =
+    	FunctionCall
+
+	StandaloneFunctionCall = Expression "(" ListOf<Expression, ","> ")"
+
+	FunctionCall =
+    	| StandaloneFunctionCall
+        | BinaryOp
+
+    // swap out left Parenthesized in the --binop line to allow chaining +'s
+    BinaryOp =
+    	| Parenthesized ("+" | "-" | "*" | "/") Parenthesized --binop
+        | Parenthesized
+
+    Parenthesized =
+    	| "(" Expression ")" --parenthesized
+        | Possessive
+
+	StandalonePossessive = Expression "'s" standaloneIdentifier
+
+    Possessive =
+    	| StandalonePossessive
+        | Object
+
+    Object =
+    	| "{" ListOf<ObjectProperty, ","> "}" --object
+        | Closure
+
+    ObjectProperty = standaloneIdentifier ":" Expression
+
+    Closure =
+    	| "\\" ListOf<standaloneIdentifier, ","> "->" Expression --closure
+        | IndexInto
+
+    IndexInto =
+    	| Expression "[" Expression "]" --indexinto
+        | DQString
+
+    standaloneDQString = "\"" (~"\"" any)+ "\""
+
+    DQString =
+    	| standaloneDQString
+        | QString
+
+	standaloneQString = "'" (~"'" any)+ "'"
+
+	QString =
+    	| standaloneQString
+        | TemplateString
+
+	standaloneTemplateString = "`" (~"`" any)+ "`"
+
+	TemplateString =
+    	| standaloneTemplateString
+        | Identifier
+
+	standaloneString = standaloneDQString | standaloneQString | standaloneTemplateString
+
+	standaloneIdentifier = (letter | "_") (alnum*)
+
+    Identifier =
+    	| "$" standaloneIdentifier --privateidentifier
+    	| standaloneIdentifier
+        | number
 
     number = ("0".."9")+
-
-    object = "{" optionalObjectPropertiesList "}"
-    optionalObjectPropertiesList = objectPropertiesList?
-    objectPropertiesList = objectProperty ("," spaces objectProperty)*
-    objectProperty = alnums spaces ":" spaces allExpressions
-
-    closure = "\\" spaces optionalParameterList spaces "->" spaces allExpressions
-    optionalParameterList = parameterList?
-    parameterList = parameter ("," spaces parameter)*
-    parameter = alnums
-
-    parenthesizedExpression = "(" spaces allExpressions spaces ")"
-    infixOperatorExpression = spaces nonOperationExpressions spaces ("+" | "*") spaces nonOperationExpressions
-    // commands
-    callCommand = ("call" | "get") " " functionCall
-    logCommand = "log" " " allExpressions
-    thenCommand = stmt spaces "then" spaces stmt
-    assignmentLhs = possessiveExpression | globalIdentifier | identifier
-    setCommand = "set" spaces "global"? spaces assignmentLhs spaces "to" spaces allExpressions
-    possessiveExpression = allExpressions spaces "'s" spaces alnums
 }

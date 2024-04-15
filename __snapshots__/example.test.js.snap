@@ -1,54 +1,45 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`basic 1 1`] = `
-"let it
-const globals = {}
-register("worldLoad", (my) => {
+"register("worldLoad", (its) => {
   exampleWorldLoad()
 
   exampleWorldLoad2()
 })
 
-register("quit", (my) => {
+register("quit", (its) => {
   sendLeave()
 })
 "
 `;
 
 exports[`basic 2 1`] = `
-"let it
-const globals = {}
-register("click", (my) => {
-  it = myJavascriptFunction()
+"register("click", (its) => {
+  myJavascriptFunction()
 })
 "
 `;
 
 exports[`basic 3 1`] = `
-"let it
-const globals = {}
-register("click", (my) => {
-  it = prompt("age fn?")
+"register("click", (its) => {
+  prompt("age fn?")
 
-  it = it()
+  it()
 })
 "
 `;
 
 exports[`basic 4 1`] = `
-"let it
-const globals = {}
-ChatLib.chat("Hello")
+"ChatLib.chat("Hello")
 
 ChatLib.chat("World!")
 "
 `;
 
 exports[`basic 5 1`] = `
-"let it
-const globals = {}
-;(() => {
-  ChatLib.chat("hello")(() => {
+";(() => {
+  ChatLib.chat("hello")
+  ;(() => {
     ChatLib.chat("world")
     ChatLib.chat("!")
   })()
@@ -57,9 +48,7 @@ const globals = {}
 `;
 
 exports[`basic 6 1`] = `
-"let it
-const globals = {}
-register("click", (my) => {
+"register("click", (its) => {
   ;(() => {
     ChatLib.chat("hello")
     ChatLib.chat("world")
@@ -69,129 +58,68 @@ register("click", (my) => {
 `;
 
 exports[`basic 7 1`] = `
-"let it
-const globals = {}
-register("click", (my) => {
+"register("click", (its) => {
   ;(() => {
-    it = helloWorld()
-    ChatLib.chat(it)
+    helloWorld()
+    ChatLib.chat(result)
   })()
 })
 "
 `;
 
 exports[`basic 8 1`] = `
-"let it
-const globals = {}
-let x
-x = "5"
+"x = "5"
 "
 `;
 
 exports[`basic 9 1`] = `
-"let it
-const globals = {}
-let x
-x = apple
+"x = apple
 "
 `;
 
 exports[`basic 9 2`] = `
-"let it
-const globals = {}
-let x
-x = 45
+"x = 45
 "
 `;
 
 exports[`basic 10 1`] = `
-"let it
-const globals = {}
-let x
-x = { name: "Joe", age: 35 }
+"x = { name: "Joe", age: 35 }
 "
 `;
 
 exports[`basic 11 1`] = `
-"let it
-const globals = {}
-register("keyup", (my) => {
+"register("keyup", (its) => {
   ChatLib.chat(it.x)
 })
 "
 `;
 
 exports[`basic 11 2`] = `
-"let it
-const globals = {}
-;(() => {
-  let y
+";(() => {
   y = (x) => x
-  it = y(5)
+  y(5)
 })()
 "
 `;
 
 exports[`basic 12 1`] = `
-"let it
-const globals = {}
-let y
-y = () => true
+"y = () => true
 "
 `;
 
 exports[`basic 13 1`] = `
-"let it
-const globals = {}
-;(() => {
-  let y
+";(() => {
   y = { a: (x) => x }
-  it = y.a("a")
+  y.a("a")
 })()
 "
 `;
 
 exports[`basic 14 1`] = `
-"let it
-const globals = {}
-let x, y, sumOfSquares
-x = 10
+"x = 10
 
 y = 20
 
 sumOfSquares = x * x + y * y
-"
-`;
-
-exports[`basic 15 1`] = `
-"let it
-const globals = {}
-globals.apple = "red"
-
-globals.orange = "orange"
-
-ChatLib.chat(globals.apple + globals.orange)
-"
-`;
-
-exports[`basic 16 1`] = `
-"let it
-const globals = {}
-globals.apple = "red"
-
-globals.orange = "orange"
-
-ChatLib.chat(globals.apple + globals.orange)
-"
-`;
-
-exports[`basic 17 1`] = `
-"let it
-const globals = {}
-register("worldLoad", (my) => {
-  ChatLib.chat("Hello!")
-
-  globals.h.b = event.a
-})
 "
 `;

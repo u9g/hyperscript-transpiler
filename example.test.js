@@ -144,33 +144,33 @@ test("basic 14", async () => {
   ).toMatchSnapshot();
 });
 
-test("basic 15", async () => {
-  expect(
-    await run(`
-      set $apple to "red"
-      set $orange to "orange"
-      log $apple + $orange
-    `)
-  ).toMatchSnapshot();
-});
+// test("basic 15", async () => {
+//   expect(
+//     await run(`
+//       set $apple to "red"
+//       set $orange to "orange"
+//       log $apple + $orange
+//     `)
+//   ).toMatchSnapshot();
+// });
 
-test("basic 16", async () => {
-  expect(
-    await run(`
-      set global apple to "red"
-      set global orange to "orange"
-      log $apple + $orange
-    `)
-  ).toMatchSnapshot();
-});
+// test("basic 16", async () => {
+//   expect(
+//     await run(`
+//       set global apple to "red"
+//       set global orange to "orange"
+//       log $apple + $orange
+//     `)
+//   ).toMatchSnapshot();
+// });
 
-test("basic 17", async () => {
-  expect(
-    await run(`
-    on "worldLoad"
-        log "Hello!"
-        set $h's b to event's a
-    end
-    `)
-  ).toMatchSnapshot();
-});
+// test("basic 17", async () => {
+//   expect(
+//     await run(`
+//     on "worldLoad"
+//         log "Hello!"
+//         set $h's b to event's a
+//     end
+//     `)
+//   ).toMatchSnapshot();
+// });

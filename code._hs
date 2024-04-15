@@ -1,0 +1,4 @@
+on "worldLoad"
+  exampleWorldLoad()
+  exampleWorldLoad2()
+end
