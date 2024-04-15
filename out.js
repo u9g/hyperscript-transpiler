@@ -1,4 +1,5 @@
-on "worldLoad"
+register("worldLoad", (its) => {
   exampleWorldLoad()
+
   exampleWorldLoadas2()
-end
+})

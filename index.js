@@ -4,21 +4,34 @@ const { format } = require("prettier");
 
 const grammar = makeGrammar(require("fs").readFileSync("./grammar.ohm"));
 
-const semantics = grammar.createSemantics().addOperation("transpile()", {
+const scopeTree = []
+
+function makeScope(currScope) {
+  let x = scopeTree;
+  for (const scope of currScope) {
+    x = x[scope]
+  }
+  x.push([])
+  const newScope = currScope.splice(0)
+  newScope.push(x.length - 1)
+  return newScope
+}
+
+const semantics = grammar.createSemantics().addOperation("transpile(scope)", {
   File(statements, a) {
-    return statements.transpile();
+    return statements.transpile(this.args.scope);
   },
   _iter(...children) {
-    return children.map((x) => x.transpile());
+    return children.map((x) => x.transpile(this.args.scope));
   },
   StatementWithPrependedNewline(a, statement) {
-    return statement.transpile();
+    return statement.transpile(this.args.scope);
   },
   StatementList(statements) {
-    return statements.asIteration().transpile().join("\n\n");
+    return statements.asIteration().transpile(makeScope(this.args.scope)).join("\n\n");
   },
   SetStatement_set(_set, lhs, _to, expr) {
-    return `${lhs.transpile()} = ${expr.transpile()};`;
+    return `${lhs.transpile(this.args.scope)} = ${expr.transpile(this.args.scope)};`;
   },
   standaloneIdentifier(firstLetter, restLetters) {
     return `${firstLetter.sourceString}${restLetters.sourceString}`;
@@ -26,8 +39,8 @@ const semantics = grammar.createSemantics().addOperation("transpile()", {
   Closure_closure(_slashes, params, _arrow, expr) {
     return `(${params
       .asIteration()
-      .children.map((x) => `${x.transpile()}`)
-      .join(",")}) => ${expr.transpile()}`;
+      .children.map((x) => `${x.transpile(this.args.scope)}`)
+      .join(",")}) => ${expr.transpile(this.args.scope)}`;
   },
   OnStatementMultipleLines_onmultiline(
     _on,
@@ -37,37 +50,38 @@ const semantics = grammar.createSemantics().addOperation("transpile()", {
     _nl2,
     _end
   ) {
-    return `register(${eventName.transpile()}, (its) => {
-      ${statementList.transpile()}
+    return `register(${eventName.transpile(this.args.scope)}, (its) => {
+      ${statementList.transpile(this.args.scope)}
     });`;
   },
   StandaloneFunctionCall(base, _lParen, args, _rParen) {
-    return `${base.transpile()}(${args
+    return `${base.transpile(this.args.scope)}(${args
       .asIteration()
-      .children.map((x) => `${x.transpile()}`)
+      .children.map((x) => `${x.transpile(this.args.scope)}`)
       .join(",")})`;
   },
   standaloneDQString(a, b, c) {
     return `"${b.sourceString}"`;
   },
   OnStatementOneLine_ononeline(_on, eventName, statement) {
-    return `register(${eventName.transpile()}, (its) => {
-      ${statement.transpile()}
+    return `register(${eventName.transpile(this.args.scope)}, (its) => {
+      ${statement.transpile(this.args.scope)}
     });`;
   },
   CallStatement_call(_call, fnCall) {
-    return fnCall.transpile();
+    return fnCall.transpile(this.args.scope);
   },
   LogStatement_log(_log, expr) {
-    return `ChatLib.chat(${expr.transpile()});`;
+    return `ChatLib.chat(${expr.transpile(this.args.scope)});`;
   },
   standaloneQString(lQuote, str, rQuote) {
     return lQuote.sourceString + str.sourceString + rQuote.sourceString;
   },
   ThenStatement_then(stmtA, _then, stmtB) {
+    const scope = makeScope(this.args.scope)
     return `(() => {
-      ${stmtA.transpile()}
-      ${stmtB.transpile()}
+      ${stmtA.transpile(scope)}
+      ${stmtB.transpile(scope)}
     })();`;
   },
   number(nums) {
@@ -76,26 +90,26 @@ const semantics = grammar.createSemantics().addOperation("transpile()", {
   Object_object(_lParen, properties, _rParen) {
     return `{${properties
       .asIteration()
-      .children.map((x) => x.transpile())
+      .children.map((x) => x.transpile(this.args.scope))
       .join(",")}}`;
   },
   ObjectProperty(property, _colon, expr) {
-    return `${property.transpile()}: ${expr.transpile()}`;
+    return `${property.transpile(this.args.scope)}: ${expr.transpile(this.args.scope)}`;
   },
   StandalonePossessive(expr, _aposS, ident) {
-    return `${expr.transpile()}.${ident.transpile()}`;
+    return `${expr.transpile(this.args.scope)}.${ident.transpile(this.args.scope)}`;
   },
   BinaryOp_binop(l, op, r) {
-    return `${l.transpile()} ${op.sourceString} ${r.transpile()}`;
+    return `${l.transpile(this.args.scope)} ${op.sourceString} ${r.transpile(this.args.scope)}`;
   },
   Parenthesized_parenthesized(_lParen, expr, _rParen) {
-    return `(${expr.transpile()})`;
+    return `(${expr.transpile(this.args.scope)})`;
   },
 });
 
 module.exports = {
   async run(input) {
-    const transpiledCode = semantics(grammar.match(input)).transpile();
+    const transpiledCode = semantics(grammar.match(input)).transpile([]);
     try {
       return await format(transpiledCode, {
         semi: false,
@@ -109,19 +123,21 @@ module.exports = {
 };
 
 async function main() {
-  // const fs = require("fs");
-  // fs.watchFile("./code._hs", { interval: 5 }, async () => {
-  //   try {
-  //     const matched = grammar.match(fs.readFileSync("./code._hs"));
-  //     const generated = semantics(matched).transpile();
-  //     fs.writeFileSync(
-  //       "out.js",
-  //       await format(generated, { semi: false, parser: "babel" })
-  //     );
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  // });
+  const fs = require("fs");
+  const cb = async () => {
+    try {
+      const matched = grammar.match(fs.readFileSync("./code._hs"));
+      const generated = semantics(matched).transpile([]);
+      fs.writeFileSync(
+        "out.js",
+        await format(generated, { semi: false, parser: "babel" })
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  cb()
+  fs.watchFile("./code._hs", { interval: 5 }, cb);
   // const matched = grammar.match(`
   // on "click" log "hello" then log "world"
   // `);
