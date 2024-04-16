@@ -1,4 +1,10 @@
 on "worldLoad"
-  exampleWorldLoad()
-  exampleWorldLoadas2()
+    set x to 5
+    set y to {apple: \x, y,z-> 19 }
+    on "worldLoad2"
+        set x to 10
+    end
+    foo()
 end
+
+on "click" call alert('You clicked me!')

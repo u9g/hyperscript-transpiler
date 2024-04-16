@@ -6,15 +6,52 @@ const grammar = makeGrammar(require("fs").readFileSync("./grammar.ohm"));
 
 const scopeTree = []
 
+const set_difference = (a, b) => [...a].filter(x => !b.has(x));
+
 function makeScope(currScope) {
   let x = scopeTree;
   for (const scope of currScope) {
     x = x[scope]
   }
   x.push([])
-  const newScope = currScope.splice(0)
+  const newScope = currScope.slice(0)
   newScope.push(x.length - 1)
   return newScope
+}
+
+function addVarUsageToScope(currScope, identifierName) {
+  let x = scopeTree;
+  for (const scope of currScope) {
+    x = x[scope]
+  }
+  x.push(identifierName)
+}
+
+function findIdentifiersUsedInThisScopeAndNotUpperScopes(currScope) {
+  let x = scopeTree;
+  for (const scope of currScope) {
+    x = x[scope]
+  }
+  const identifiers = new Set()
+  for (const maybeIdentifier of x) {
+    if (typeof maybeIdentifier === 'string') {
+      identifiers.add(maybeIdentifier)
+    }
+  }
+
+  const prevUsedIdentifiers = new Set()
+
+  let y = scopeTree;
+  for (let j = 0; j < currScope.length; j++) {
+    const scope = currScope[j]
+    for (let i = 0; i < scope; i++) {
+      if (typeof y[i] === 'string') {
+        prevUsedIdentifiers.add(y[i])
+      }
+    }
+    y = y[scope]
+  }
+  return [identifiers, prevUsedIdentifiers]
 }
 
 const semantics = grammar.createSemantics().addOperation("transpile(scope)", {
@@ -28,9 +65,18 @@ const semantics = grammar.createSemantics().addOperation("transpile(scope)", {
     return statement.transpile(this.args.scope);
   },
   StatementList(statements) {
-    return statements.asIteration().transpile(makeScope(this.args.scope)).join("\n\n");
+    const scope = makeScope(this.args.scope)
+    const transpiledStatements = statements.asIteration().transpile(scope).join("\n\n");
+    const [identifiers, prevUsedIdentifiers] = findIdentifiersUsedInThisScopeAndNotUpperScopes(scope)
+    const identifiersThatNeedLet = set_difference(identifiers, prevUsedIdentifiers)
+    const letStatement = identifiersThatNeedLet.length > 0 ? 'let ' + identifiersThatNeedLet.join(', ') + ';' : ''
+
+    return letStatement + transpiledStatements //+ `\n//${JSON.stringify([...identifiersThatNeedLet])}\n`//+ `\n//identifiers=${JSON.stringify([...identifiers])} prevUsedIdentifiers=${JSON.stringify([...prevUsedIdentifiers])} scope=${JSON.stringify(scope)}\n`
   },
   SetStatement_set(_set, lhs, _to, expr) {
+    if (lhs.children[0].ctorName === 'standaloneIdentifier') {
+      addVarUsageToScope(this.args.scope, lhs.children[0].transpile(/*unused*/[]))
+    }
     return `${lhs.transpile(this.args.scope)} = ${expr.transpile(this.args.scope)};`;
   },
   standaloneIdentifier(firstLetter, restLetters) {

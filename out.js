@@ -1,5 +1,16 @@
 register("worldLoad", (its) => {
-  exampleWorldLoad()
+  let x, y
+  x = 5
 
-  exampleWorldLoadas2()
+  y = { apple: (x, y, z) => 19 }
+
+  register("worldLoad2", (its) => {
+    x = 10
+  })
+
+  foo()
+})
+
+register("click", (its) => {
+  alert("You clicked me!")
 })
