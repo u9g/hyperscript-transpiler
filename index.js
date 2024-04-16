@@ -151,6 +151,9 @@ const semantics = grammar.createSemantics().addOperation("transpile(scope)", {
   Parenthesized_parenthesized(_lParen, expr, _rParen) {
     return `(${expr.transpile(this.args.scope)})`;
   },
+  BooleanLiteral(bool) {
+    return bool.sourceString
+  }
 });
 
 module.exports = {

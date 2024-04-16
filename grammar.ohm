@@ -95,11 +95,16 @@ Program {
 
 	TemplateString =
     	| standaloneTemplateString
-        | Identifier
+        | BooleanLiteral
+
+	BooleanLiteral = 
+		| "true" | "false" --boolean
+		| Identifier
 
 	standaloneString = standaloneDQString | standaloneQString | standaloneTemplateString
 
 	standaloneIdentifier = (letter | "_") (alnum*)
+
 
     Identifier =
     	| "$" standaloneIdentifier --privateidentifier
